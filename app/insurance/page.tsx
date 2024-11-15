@@ -17,7 +17,5 @@ export default function InsurancePage() {
             </div>
         </div>
         <Button className="w-full mt-8">Pay</Button>
-
-
     </div>
 }
