@@ -1,11 +1,11 @@
 'use client';
 import FlickeringGrid from "@/components/ui/flickering-grid";
-import { Input } from "@/components/ui/input";
 import TypingAnimation from "@/components/ui/typing-animation";
 import WordRotate from "@/components/ui/word-rotate";
-
+import SearchDrawer from "./search-drawer";
 
 export default function Home() {
+
   return (
     <>
       <div className="container mx-auto w-full h-[calc(100vh-100px)] ">
@@ -19,7 +19,8 @@ export default function Home() {
               className="text-3xl -mt-2 font-bold text-center text-black dark:text-white"
               words={["ISS", "DFSD", "AAA"]}
             />
-            <Input className="bg-white mt-2"></Input>
+            <SearchDrawer />
+
           </div>
         </div>
         <FlickeringGrid
@@ -30,8 +31,9 @@ export default function Home() {
           maxOpacity={0.5}
           flickerChance={0.1}
         />
-        {/* <World data={sampleArcs} globeConfig={globeConfig} /> */}
       </div>
     </>
   );
 }
+
+
