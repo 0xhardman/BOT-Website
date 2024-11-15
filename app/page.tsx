@@ -8,7 +8,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="container mx-auto w-full h-[calc(100vh-100px)] ">
+      <div className="container mx-auto w-full h-[calc(100vh-140px)] ">
         <div className="justify-center items-center h-full w-full flex flex-col">
           <div className="w-full max-w-6xl mt-10 px-8">
             <TypingAnimation

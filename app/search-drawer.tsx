@@ -1,3 +1,4 @@
+'use client';
 import {
     Command,
     CommandEmpty,
@@ -11,8 +12,10 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function SearchDrawer() {
+    const router = useRouter();
     return <Drawer>
         <DrawerTrigger className="w-full">
             <Input className="bg-white"></Input>
@@ -22,16 +25,20 @@ export default function SearchDrawer() {
                 <Input placeholder="Destination" />
             </div>
             <div className="h-[70vh]">
-                <Command className="rounded-lg border shadow-md md:min-w-[450px]">
+                <Command className="rounded-lg border shadow-md ">
                     {/* <CommandInput placeholder="Type a command or search..." /> */}
                     <CommandList>
                         <CommandEmpty>No results found.</CommandEmpty>
-                        <CommandItem>
-                            <span>Calendar</span>
-                        </CommandItem>
-                        <CommandItem>
-                            <span>Search Emoji</span>
-                        </CommandItem>
+                        {
+                            Array.from({ length: 100 }).map((_, index) => (
+                                <CommandItem onSelect={() => {
+                                    console.log(123)
+                                    router.push(`/insurance`)
+                                }} key={index}>
+                                    {index}12313123131123
+                                </CommandItem>
+                            ))
+                        }
                     </CommandList>
                 </Command>
             </div>

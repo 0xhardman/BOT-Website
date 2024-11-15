@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { RainbowProvider } from "@/components/rainbow-kit";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <RainbowProvider>
           <Header />
           {children}
+          <Footer />
         </RainbowProvider>
       </body>
     </html>

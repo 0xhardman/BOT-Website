@@ -1,6 +1,9 @@
+'use client';
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function InsurancePage() {
+    const router = useRouter();
     return <div className="py-8 px-4">
         <div className="flex flex-col gap-1">
             <div>Est. time:</div>
@@ -16,6 +19,8 @@ export default function InsurancePage() {
                 <div>Baht: 15:20</div>
             </div>
         </div>
-        <Button className="w-full mt-8">Pay</Button>
+        <Button className="w-full mt-8" onClick={() => {
+            router.push(`/insurance/list`)
+        }}>Pay</Button>
     </div>
 }
