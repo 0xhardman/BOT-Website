@@ -14,23 +14,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { usePlacesSearch } from "@/hooks/api/use-places-search";
 import { useCurrentLocation } from "@/hooks/use-current-location";
+import { calculateDistance } from "@/lib/utils";
+import { CommandLoading } from "cmdk";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SearchDrawer() {
     const router = useRouter();
     const [textQuery, setTextQuery] = useState('')
-    const { places, isLoading, error } = usePlacesSearch({
-        textQuery
-    })
+
     const { location, isLoading: isLoadingLocation, error: errorLocation } = useCurrentLocation()
-    console.log({ location, isLoadingLocation, errorLocation })
+    const { places, isLoading, error } = usePlacesSearch({
+        textQuery,
+        latitude: location?.latitude,
+        longitude: location?.longitude
+    })
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTextQuery(e.target.value)
     }
     return <Drawer>
         <DrawerTrigger className="w-full">
-            <Input className="bg-white"></Input>
+            <Input value={textQuery} className="bg-white"></Input>
         </DrawerTrigger>
         <DrawerContent className="flex flex-col gap-4 p-4">
             <div className="flex flex-col gap-1">
@@ -40,14 +44,19 @@ export default function SearchDrawer() {
                 <Command className="rounded-lg border shadow-md ">
                     {/* <CommandInput placeholder="Type a command or search..." /> */}
                     <CommandList>
-                        <CommandEmpty>No results found.</CommandEmpty>
-                        {
+                        {isLoading ? <div className="p-1">Loading</div> : places?.length <= 0 ? <div>No results found.</div>
+                            :
                             places?.map((item, index) => (
-                                <CommandItem onSelect={() => {
-                                    console.log(123)
-                                    router.push(`/insurance`)
+                                <CommandItem className="flex justify-between" onSelect={() => {
+                                    router.push(`/insurance?originLongitude=${location?.longitude}&originLatitude=${location?.latitude}&placeId=${item.id}`)
                                 }} key={index}>
-                                    {item.shortFormattedAddress}
+                                    <div className="max-w-[200px]">{item.displayName.text}</div>
+                                    <div className="w-[80px]">{calculateDistance(
+                                        location?.latitude as number,
+                                        location?.longitude as number,
+                                        item.location.latitude,
+                                        item.location.longitude
+                                    )} KM</div>
                                 </CommandItem>
                             ))
                         }
