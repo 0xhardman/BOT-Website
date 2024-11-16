@@ -25,6 +25,7 @@ function Distance() {
     const searchParams = useSearchParams();
     const destination = searchParams?.get('destination') ?? '';
     const endTime = Number(searchParams?.get('endTime') ?? '0');
+    const startTime = Number(searchParams?.get('startTime') ?? '0');
     const destinationArray = destination.split(',');
     const destLatitude = parseFloat(destinationArray[0]);
     const destLongitude = parseFloat(destinationArray[1]);
@@ -63,10 +64,10 @@ function Distance() {
         if (stage == 1) {
             setTimeout(() => {
                 setStage(stage + 1)
-            }, 2000)
+            }, 10000)
         }
         if (stage >= 2) {
-            router.push(`/insurance/detail?isOnTime=${endTime > new Date().getTime()}`)
+            router.push(`/insurance/detail?isOnTime=${endTime > new Date().getTime()}&startTime=${startTime}&endTime=${endTime}&stopTime=${new Date().getTime()}`)
         }
     }, [stage])
     const handleCheck = async () => {

@@ -65,7 +65,7 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
                 }
             })()
         if (stage >= 2) {
-            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}`)
+            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}&startTime=${new Date().getTime()}`)
         }
     }, [stage])
     const handlePay = NETWORK == "NORMAL" ? async () => {
