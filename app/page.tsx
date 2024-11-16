@@ -3,6 +3,7 @@ import FlickeringGrid from "@/components/ui/flickering-grid";
 import TypingAnimation from "@/components/ui/typing-animation";
 import WordRotate from "@/components/ui/word-rotate";
 import SearchDialog from "./search-dialog";
+import { RegisterEmailButton } from "./register-email-button";
 
 export default function Home() {
 
@@ -21,6 +22,7 @@ export default function Home() {
             />
             <SearchDialog />
 
+            <RegisterEmailButton />
           </div>
         </div>
         <FlickeringGrid

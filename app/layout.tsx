@@ -5,6 +5,7 @@ import { RainbowProvider } from "@/components/rainbow-kit";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { AuthProvider } from "@/contexts/auth";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,6 +40,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </RainbowProvider>
+        <Toaster />
       </body>
     </html>
   );
