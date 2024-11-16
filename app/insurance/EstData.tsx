@@ -6,8 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { parseUnits } from "viem";
 import { useWriteContract } from "wagmi";
 import PayBtn from "./PayBtn";
+import { useEffect, useState } from 'react';
+import { CircleCheck } from "lucide-react";
 
 export default function EstData() {
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const searchParams = useSearchParams();
     // http://localhost:3000/insurance?originLongitude=100.5583005&originLatitude=13.7247806&placeId=ChIJ3UPIL_6e4jARVH4S0xM70xw
@@ -31,7 +34,14 @@ export default function EstData() {
         origin: originName = "",
         destination: destName = ""
     } = data
-    return < div className="py-8 px-4" >
+
+
+    const truncateText = (text: string, maxLength: number) => {
+        if (text.length <= maxLength) return text;
+        return text.slice(0, maxLength) + '...';
+    };
+
+    return <div className="py-8 px-4">
         <div className="flex flex-col gap-1">
             <div>Est. time:</div>
             <div className="border p-4 text-center text-4xl font-bold">
@@ -43,12 +53,55 @@ export default function EstData() {
             <h4 className="mt-4 text-center text-lg font-bold">Purchase an Insurance</h4>
             <div className="text-center mt-4">
                 <span>Arrive latest time: <div className="text-center">{new Date(new Date().getTime() + durationInTraffic * 1100).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div></span>
-                <div>From: {originName}</div>
-                <div>To: {destName}</div>
+                <div onClick={() => setIsExpanded(!isExpanded)} className="cursor-pointer">
+                    <div>From: {isExpanded ? originName : truncateText(originName, 30)}</div>
+                    <div>To: {isExpanded ? destName : truncateText(destName, 30)}</div>
+                </div>
                 <div>Distance: {(distance / 1000).toFixed(2)} KM</div>
                 <div>Baht: 20</div>
             </div>
         </div>
+        <Uploading />
         <PayBtn />
-    </div >
+    </div>
+}
+
+function Uploading() {
+    const [stage, setStage] = useState(0)
+    useEffect(() => {
+        setTimeout(() => {
+            setStage(stage + 1)
+        }, 2000)
+    }, [stage])
+    return <div className="mt-4 space-y-4">
+        <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
+            <div className="flex items-center gap-2">
+
+                {
+                    stage < 1 ? <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+                        <span className="text-sm text-gray-600">Uploading current location to Nillion...</span>
+                    </>
+                        :
+                        <>
+                            <CircleCheck className="text-green-600 text-xs" />
+                            <span className="text-sm text-gray-600">Uploaded current location location</span>
+                        </>
+                }
+            </div>
+            <div className="flex items-center gap-2">
+                {
+                    stage < 2 ? <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+                        <span className="text-sm text-gray-600 transition-opacity delay-2000 duration-500">Uploading destination location...</span>
+                    </>
+                        :
+                        <>
+                            <CircleCheck className="text-green-600 text-xs" />
+                            <span className="text-sm text-gray-600">Uploaded destination location</span>
+                        </>
+                }
+            </div>
+        </div>
+    </div>
 }
