@@ -53,7 +53,9 @@ export default function SearchDialog() {
                 <Command className="rounded-lg border shadow-md ">
                     {/* <CommandInput placeholder="Type a command or search..." /> */}
                     <CommandList>
-                        {isLoading ? <div className="p-1">Loading</div> : places?.length <= 0 ? <div>No results found.</div>
+                        {isLoading ? <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
+                            Searching places...
+                        </div> : places?.length <= 0 ? <div>No results found.</div>
                             :
                             places?.map((item, index) => (
                                 <CommandItem className="flex justify-between" onSelect={() => {

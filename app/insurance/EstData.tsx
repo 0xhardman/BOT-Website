@@ -17,7 +17,12 @@ export default function EstData() {
         origin: origin,
         destination: destination
     })
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) return (
+        <div className="flex items-center justify-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
+            <span className="ml-3 text-lg text-gray-600">Calculating route...</span>
+        </div>
+    )
     
     const {
         distance = 0,
