@@ -46,8 +46,17 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
             console.log('click')
             const address = await sdk.getUserWalletAddress()
             console.log(address)
-            const res1 = await sdk.approveToken(usdc.address, parseUnits("5", 6).toString(), bot.address)
-            console.log("res1", res1)
+            // const res1 = await sdk.approveToken(usdc.address, parseUnits("500000000000", 6).toString(), bot.address)
+            // console.log("res1", res1)
+            //
+            // while (true) {
+            //     const waitRes = await sdk.getTransactionDetails(res1.queueID);
+            //     console.log("waitRes", waitRes)
+            //
+            //     if (waitRes.status === "MINED") {
+            //         break;
+            //     }
+            // }
 
             const res2 = await sdk.sendCustomTx(
               bot.address, "startTrip(string _tripId, uint256 _startTime, uint256 _value, address bitkubNext_)", [

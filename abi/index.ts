@@ -10,8 +10,8 @@ const addressConfig = {
         bot: "0x0000000000000000000000000000000000000000",
     },
     25925: {
-        usdc: "0x4e3c020d603267e7837fC9cD1Fc189F897E639f3",
-        bot: "0x936735f645dc07355a80D335d04fE18fC16E451a",
+        usdc: "0x165eEEDc8D9eF353D68115260cCFE8a593EC7552",
+        bot: "0xf096540C98E4aAF943C0C1616dCdb81Df848d775",
     },
 
 }
