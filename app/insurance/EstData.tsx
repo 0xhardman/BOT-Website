@@ -5,10 +5,10 @@ import { useTaxiTime } from "@/hooks/api/use-taxi-time";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parseUnits } from "viem";
 import { useWriteContract } from "wagmi";
+import PayBtn from "./PayBtn";
 
 export default function EstData() {
-    const router = useRouter();
-    const { writeContractAsync } = useWriteContract()
+    
     const searchParams = useSearchParams();
     // http://localhost:3000/insurance?originLongitude=100.5583005&originLatitude=13.7247806&placeId=ChIJ3UPIL_6e4jARVH4S0xM70xw
     const origin = searchParams?.get('origin') ?? '';
@@ -18,19 +18,7 @@ export default function EstData() {
         destination: destination
     })
     if (isLoading) return <div>Loading...</div>
-    const handlePay = async () => {
-        try {
-            await writeContractAsync({
-                ...usdc,
-                functionName: "transfer",
-                args: ['0xCC968F87F7b7Cd5e3493cF87A7A6D2CaCC4E3d50', parseUnits("20", 6)]
-            })
-            router.push('/insurance/detail')
-
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    
     const {
         distance = 0,
         duration = 0,
@@ -56,6 +44,6 @@ export default function EstData() {
                 <div>Baht: 20</div>
             </div>
         </div>
-        <Button className="w-full mt-8" onClick={handlePay}> Pay</Button>
+        <PayBtn />
     </div >
 }

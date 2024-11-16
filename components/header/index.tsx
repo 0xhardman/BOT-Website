@@ -1,8 +1,11 @@
 "use client"
 // import { cn } from "@/lib/utils";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { divide } from "lodash";
+import BKCConnetBtn from "./BKCConnetBtn";
 // import { useRouter, usePathname } from "next/navigation";
 
+const NETWORK = process.env.NEXT_PUBLIC_NETWORK?.startsWith('BKC') ? 'BKC' : 'NORMAL'
 
 export default function Header() {
     // const router = useRouter();
@@ -13,7 +16,9 @@ export default function Header() {
                 <div className="bg-gray-500 rounded-full w-10 h-10"></div>
                 <p>BOT</p>
             </div>
-            <ConnectButton accountStatus="address" chainStatus="full" showBalance={false} />
+            {NETWORK == "NORMAL" ? < ConnectButton accountStatus="address" chainStatus="full" showBalance={false} /> :
+                <BKCConnetBtn></BKCConnetBtn>
+            }
         </div>
     </div>
 }
