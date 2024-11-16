@@ -46,15 +46,19 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
             console.log('click')
             const address = await sdk.getUserWalletAddress()
             console.log(address)
-            const res1 = await sdk.approveToken(usdc.address, parseUnits("0.1", 6).toString(), bot.address)
-            // const res2 = await sdk.sendCustomTx(bot.address, "startTrip(string,uint256,uint256,address)", [
-            //     randomBytes(32).toString('hex'), // _tripId: 随机生成的trip ID
-            //     Math.floor(Date.now() / 1000).toString(), // _startTime: 当前时间戳
-            //     parseUnits("0.1", 6).toString(), // _value: 0.1 USDC
-            //     "0xYourBitkubNextAddress" // bitkubNext_: 需要替换为实际的BitKubNext地址
-            // ])
-            // console.log(res2)
-            // router.push('/insurance/detail')
+            const res1 = await sdk.approveToken(usdc.address, parseUnits("5", 6).toString(), bot.address)
+            console.log("res1", res1)
+
+            const res2 = await sdk.sendCustomTx(
+              bot.address, "startTrip(string _tripId, uint256 _startTime, uint256 _value, address bitkubNext_)", [
+                randomBytes(32).toString('hex'), // _tripId:
+                Math.floor(Date.now() / 1000).toString(), // _startTime:
+                parseUnits("5", 6).toString(), // _value: 5 USDC
+                // address
+                // "0xYourBitkubNextAddress" // bitkubNext_:
+            ])
+            console.log("res2", res2)
+            router.push('/insurance/detail')
             setStage(0)
         } catch (error) {
             console.log(error)

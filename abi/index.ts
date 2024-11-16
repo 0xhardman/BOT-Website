@@ -11,7 +11,7 @@ const addressConfig = {
     },
     25925: {
         usdc: "0x4e3c020d603267e7837fC9cD1Fc189F897E639f3",
-        bot: "0xCE752716B359EcD051F68eD2289753E069f4426b",
+        bot: "0x936735f645dc07355a80D335d04fE18fC16E451a",
     },
 
 }
@@ -38,4 +38,4 @@ export const special_token: { [key: string]: Token } = {
         symbol: "USDC"
     },
 
-} 
+}
