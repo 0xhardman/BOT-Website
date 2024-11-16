@@ -2,7 +2,6 @@
 import FlickeringGrid from "@/components/ui/flickering-grid";
 import TypingAnimation from "@/components/ui/typing-animation";
 import WordRotate from "@/components/ui/word-rotate";
-import SearchDrawer from "./search-drawer";
 import SearchDialog from "./search-dialog";
 
 export default function Home() {
