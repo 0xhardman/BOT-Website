@@ -8,7 +8,7 @@ import { useWriteContract } from "wagmi";
 import PayBtn from "./PayBtn";
 
 export default function EstData() {
-    
+
     const searchParams = useSearchParams();
     // http://localhost:3000/insurance?originLongitude=100.5583005&originLatitude=13.7247806&placeId=ChIJ3UPIL_6e4jARVH4S0xM70xw
     const origin = searchParams?.get('origin') ?? '';
@@ -23,7 +23,7 @@ export default function EstData() {
             <span className="ml-3 text-lg text-gray-600">Calculating route...</span>
         </div>
     )
-    
+
     const {
         distance = 0,
         duration = 0,
@@ -35,7 +35,7 @@ export default function EstData() {
         <div className="flex flex-col gap-1">
             <div>Est. time:</div>
             <div className="border p-4 text-center text-4xl font-bold">
-                {Math.floor(durationInTraffic / 60 / 60)}:{Math.floor((durationInTraffic / 60) % 60)}:{Math.floor((durationInTraffic % 60) % 60)}
+                {Math.floor(durationInTraffic / 60 / 60).toString().padStart(2, '0')}:{Math.floor((durationInTraffic / 60) % 60).toString().padStart(2, '0')}:{Math.floor((durationInTraffic % 60) % 60).toString().padStart(2, '0')}
             </div>
             <div className="text-center">Arrive at {(new Date(new Date().getTime() + durationInTraffic * 1000)).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
         </div>
