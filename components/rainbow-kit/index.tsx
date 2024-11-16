@@ -7,6 +7,7 @@ import {
 import { WagmiProvider } from 'wagmi';
 import {
   optimism,
+  sepolia,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -17,7 +18,7 @@ import {
 export const config = getDefaultConfig({
   appName: '',
   projectId: 'a1fc63f578160e84914e2f3788fc6c58',
-  chains: [optimism],
+  chains: [sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
