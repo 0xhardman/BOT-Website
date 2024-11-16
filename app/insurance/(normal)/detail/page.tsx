@@ -1,12 +1,22 @@
 'use client';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState } from "react";
 import { sdk } from "@/lib/bitkubchain-sdk";
 import { usdc } from "@/abi";
 import { parseUnits } from "viem";
 import Confetti, { ConfettiRef } from "@/components/ui/confetti";
+import { useGenerateProof } from "@/hooks/api/useGenerateProof";
+import { Input } from "@/components/ui/input";
 
 export default function InsuranceDetailPage() {
     return <Suspense>
@@ -19,6 +29,8 @@ function Result() {
     const searchParams = useSearchParams()
     const isOnTime = searchParams?.get('isOnTime');
     const confettiRef = useRef<ConfettiRef>(null);
+    const [stage, setStage] = useState(0)
+
 
     const handleClaim = async () => {
         console.log('claim')
@@ -45,9 +57,53 @@ function Result() {
                 </div>
             </div>
         </div>
-        {isOnTime != 'true' && <Button onClick={handleClaim} className="mt-4 w-full">Claim</Button>}
+        {isOnTime != 'true' && <>
+            {stage == 0 && <GenerateProof onSuccess={() => setStage(1)} />}
+            {stage == 1 && <Button onClick={handleClaim} className="mt-4 w-full">Claim</Button>}
+        </>}
     </div>
+}
 
+function GenerateProof({ onSuccess }: { onSuccess: () => void }) {
+    const { trigger: generateProof, isMutating: isGeneratingProof } = useGenerateProof()
+    const [email, setEmail] = useState('')
+    const [emlFile, setEmlFile] = useState<File | null>(null)
+    const [address, setAddress] = useState('')
+    const handleGenerateProof = async () => {
+        console.log('success')
+        onSuccess()
+        if (emlFile) {
+            await generateProof({
+                email,
+                emlFile
+            })
 
+        }
 
+    }
+    return <Dialog>
+        <DialogTrigger asChild>
+            <Button className="mt-4 w-full">Generate Proof</Button>
+        </DialogTrigger>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Generate Proof</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+                Please enter your email address to receive notifications about your trip.
+            </DialogDescription>
+            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+                type="file"
+                onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                        setEmlFile(file)
+                    }
+                }}
+                accept=".eml"
+            />
+            <Button type="submit" onClick={handleGenerateProof}>Submit</Button>
+        </DialogContent>
+    </Dialog>
 }
