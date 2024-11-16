@@ -48,7 +48,7 @@ export default function SearchDrawer() {
                             :
                             places?.map((item, index) => (
                                 <CommandItem className="flex justify-between" onSelect={() => {
-                                    router.push(`/insurance?originLongitude=${location?.longitude}&originLatitude=${location?.latitude}&placeId=${item.id}`)
+                                    router.push(`/insurance?origin=${location?.latitude + ',' + location?.longitude}&destination=place_id:${item.id}`)
                                 }} key={index}>
                                     <div className="max-w-[200px]">{item.displayName.text}</div>
                                     <div className="w-[80px]">{calculateDistance(
