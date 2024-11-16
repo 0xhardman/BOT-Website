@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { CircleCheck } from "lucide-react";
 import { useRegisterEmail } from "@/hooks/api/useRegisterEmail";
 import { useStoreSecret } from "@/hooks/useNillionApi";
+import { useToast } from "@/hooks/use-toast";
+import { useEstimateTime } from "@/hooks/api/useEstimateTime";
 
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK?.startsWith('BKC') ? 'BKC' : 'NORMAL'
 
@@ -19,7 +21,10 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
     const origin = searchParams?.get('origin') ?? '';
     const destination = searchParams?.get('destination') ?? '';
     const [stage, setStage] = useState(-1)
+    const [isLoading, setIsLoading] = useState(false)
     const { trigger: triggerUpload, isMutating: isUploading } = useStoreSecret()
+    const { trigger: estimateTime, isMutating: isEstimatingTime } = useEstimateTime()
+    const { toast } = useToast()
 
     const { writeContractAsync } = useWriteContract()
     useEffect(() => {
@@ -31,14 +36,14 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
                 try {
                     const destArr = destination.split(',')
                     console.log(Number(destArr[0]) * 10000000)
-                    await triggerUpload({
-                        secretName: 'destLongitude',
-                        secretValue: Number(destArr[0]) * 10000000,
-                    })
-                    await triggerUpload({
-                        secretName: 'destLatitude',
-                        secretValue: Number(destArr[1]) * 10000000,
-                    })
+                    // await triggerUpload({
+                    //     secretName: 'destLongitude',
+                    //     secretValue: Number(destArr[0]) * 10000000,
+                    // })
+                    // await triggerUpload({
+                    //     secretName: 'destLatitude',
+                    //     secretValue: Number(destArr[1]) * 10000000,
+                    // })
                 } catch (error) {
                     console.log(error)
                 } finally {
@@ -50,14 +55,14 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
             (async () => {
                 try {
                     const originArr = origin.split(',')
-                    await triggerUpload({
-                        secretName: 'originLongitude',
-                        secretValue: Number(originArr[0]) * 10000000,
-                    })
-                    await triggerUpload({
-                        secretName: 'originLatitude',
-                        secretValue: Number(originArr[1]) * 10000000,
-                    })
+                    // await triggerUpload({
+                    //     secretName: 'originLongitude',
+                    //     secretValue: Number(originArr[0]) * 10000000,
+                    // })
+                    // await triggerUpload({
+                    //     secretName: 'originLatitude',
+                    //     secretValue: Number(originArr[1]) * 10000000,
+                    // })
                 } catch (error) {
                     console.log(error)
                 } finally {
@@ -65,7 +70,7 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
                 }
             })()
         if (stage >= 2) {
-            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}`)
+            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}&startTime=${new Date().getTime()}&origin=${origin}`)
         }
     }, [stage])
     const handlePay = NETWORK == "NORMAL" ? async () => {
@@ -82,29 +87,48 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
     } : async () => {
         console.log(bot.address)
         try {
+            setIsLoading(true)
             console.log('click')
             const address = await sdk.getUserWalletAddress()
             console.log(address)
-            // const res1 = await sdk.approveToken(usdc.address, parseUnits("500000000000", 6).toString(), bot.address)
-            // console.log("res1", res1)
-            //
-            // while (true) {
-            //     const waitRes = await sdk.getTransactionDetails(res1.queueID);
-            //     console.log("waitRes", waitRes)
-            //
-            //     if (waitRes.status === "MINED") {
-            //         break;
-            //     }
-            // }
 
+            const res1 = await sdk.approveToken(usdc.address, parseUnits("5", 6).toString(), bot.address)
+
+            const tripId = randomBytes(32).toString('hex')
             const res2 = await sdk.sendCustomTx(
                 bot.address, "startTrip(string _tripId, uint256 _startTime, uint256 _value, address bitkubNext_)", [
-                randomBytes(32).toString('hex'), // _tripId:
+                tripId, // _tripId:
                 Math.floor(Date.now() / 1000).toString(), // _startTime:
                 parseUnits("5", 6).toString(), // _value: 5 USDC
                 // address
                 // "0xYourBitkubNextAddress" // bitkubNext_:
             ])
+            while (true) {
+                const waitRes = await sdk.getTransactionDetails(res2.queueID);
+                console.log("waitRes", waitRes)
+
+                if (waitRes.status === "MINED") {
+                    toast({
+                        title: 'Success',
+                        description: 'Trip started',
+                    })
+                    await estimateTime({
+                        tripId,
+                        startPos: {
+                            latitude: Number(origin[0]) * 10000000,
+                            longitude: Number(origin[1]) * 10000000
+                        },
+                        endPos: {
+                            latitude: Number(destination[0]) * 10000000,
+                            longitude: Number(destination[1]) * 10000000
+                        },
+                        estEndTime: new Date(new Date().getTime() + durationInTraffic * 1100).getTime()
+                    })
+                    setIsLoading(false)
+
+                    break;
+                }
+            }
             console.log("res2", res2)
         } catch (error) {
             console.log(error)
@@ -113,7 +137,7 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
         }
     }
     return <>
-        {stage < 0 ? <Button className="w-full mt-8" onClick={handlePay}> Pay</Button> :
+        {stage < 0 ? <Button className="w-full mt-8" onClick={handlePay} disabled={isLoading}> {isLoading ? 'Paying...' : 'Pay'}</Button> :
             <Uploading stage={stage} />}
     </>
 }

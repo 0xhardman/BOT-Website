@@ -46,14 +46,14 @@ function Distance() {
         if (stage == 0)
             (async () => {
                 try {
-                    await triggerUpload({
-                        secretName: 'currentLongitude',
-                        secretValue: location?.longitude ? location.longitude * 10000000 : 0,
-                    })
-                    await triggerUpload({
-                        secretName: 'currentLatitude',
-                        secretValue: location?.latitude ? location.latitude * 10000000 : 0,
-                    })
+                    // await triggerUpload({
+                    //     secretName: 'currentLongitude',
+                    //     secretValue: location?.longitude ? location.longitude * 10000000 : 0,
+                    // })
+                    // await triggerUpload({
+                    //     secretName: 'currentLatitude',
+                    //     secretValue: location?.latitude ? location.latitude * 10000000 : 0,
+                    // })
                 } catch (error) {
                     console.log(error)
                 } finally {
@@ -64,7 +64,7 @@ function Distance() {
         if (stage == 1) {
             setTimeout(() => {
                 setStage(stage + 1)
-            }, 10000)
+            }, 1000)
         }
         if (stage >= 2) {
             router.push(`/insurance/detail?isOnTime=${endTime > new Date().getTime()}&startTime=${startTime}&endTime=${endTime}&stopTime=${new Date().getTime()}`)

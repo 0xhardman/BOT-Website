@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
 import { sdk } from "@/lib/bitkubchain-sdk";
-import { usdc } from "@/abi";
+import { bot, usdc } from "@/abi";
 import { parseUnits } from "viem";
 import Confetti, { ConfettiRef } from "@/components/ui/confetti";
 import { useGenerateProof } from "@/hooks/api/useGenerateProof";
@@ -26,6 +26,7 @@ export default function InsuranceDetailPage() {
 }
 
 function Result() {
+    const { toast } = useToast()
     const router = useRouter()
     const searchParams = useSearchParams()
     const isOnTime = searchParams?.get('isOnTime');
@@ -33,20 +34,39 @@ function Result() {
     const endTime = Number(searchParams?.get('endTime') ?? '0');
     const stopTime = Number(searchParams?.get('stopTime') ?? '0');
     const confettiRef = useRef<ConfettiRef>(null);
+    const [isLoading, setIsLoading] = useState(false)
     const [stage, setStage] = useState(0)
 
 
     const handleClaim = async () => {
         console.log('claim')
+        // setIsLoading(true)
         const address = await sdk.getUserWalletAddress()
         await sdk.approveToken(usdc.address, parseUnits('1', 6).toString(), address)
+        const res2 = await sdk.sendCustomTx(
+            bot.address, "claim(address bitkubNext_)", [])
+        while (true) {
+            const waitRes = await sdk.getTransactionDetails(res2.queueID);
+            console.log("waitRes", waitRes)
+
+            if (waitRes.status === "MINED") {
+                toast({
+                    title: 'Success',
+                    description: 'Trip started',
+                })
+                // setIsLoading(false)
+
+                break;
+            }
+        }
         router.push('/insurance/claimed')
     }
 
     function formatTime(time: number) {
-        const hours = Math.floor(time / 3600).toString().padStart(2, '0');
-        const minutes = Math.floor((time % 3600) / 60).toString().padStart(2, '0');
-        const seconds = (time % 60).toString().padStart(2, '0');
+        const timeInSeconds = Math.floor(time / 1000)
+        const hours = Math.floor(timeInSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((timeInSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (timeInSeconds % 60).toString().padStart(2, '0');
         return `${hours}:${minutes}:${seconds}`;
     }
 
@@ -70,7 +90,7 @@ function Result() {
         </div>
         {isOnTime != 'true' && <>
             {stage == 0 && <GenerateProof onSuccess={() => setStage(1)} />}
-            {stage == 1 && <Button onClick={handleClaim} className="mt-4 w-full">Claim</Button>}
+            {stage == 1 && <Button onClick={handleClaim} className="mt-4 w-full" disabled={isLoading}>{"claim"}</Button>}
         </>}
     </div>
 }
