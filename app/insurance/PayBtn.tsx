@@ -28,12 +28,17 @@ export default function PayBtn() {
         console.log(bot.address)
         try {
             console.log('click')
-            const res = await sdk.transferNative("0xCC968F87F7b7Cd5e3493cF87A7A6D2CaCC4E3d50", parseUnits("0.1", 2))
-            // const res = await sdk.sendCustomTx(
-            //     bot.address,
-            //     "function startTrip(string _tripId,uint256 _startTime,uint256 _value,address _bitkubNext)",
-            //     ["12a3", new Date().getTime().toString(), '0xCC968F87F7b7Cd5e3493cF87A7A6D2CaCC4E3d50', parseUnits("20", 18).toString()]
-            // )
+            const address = await sdk.getUserWalletAddress()
+            console.log(address)
+            const res1 = await sdk.approveToken(usdc.address, parseUnits("0.1", 6).toString(), bot.address)
+            // const res2 = await sdk.sendCustomTx(bot.address, "startTrip(string,uint256,uint256,address)", [
+            //     randomBytes(32).toString('hex'), // _tripId: 随机生成的trip ID
+            //     Math.floor(Date.now() / 1000).toString(), // _startTime: 当前时间戳
+            //     parseUnits("0.1", 6).toString(), // _value: 0.1 USDC
+            //     "0xYourBitkubNextAddress" // bitkubNext_: 需要替换为实际的BitKubNext地址
+            // ])
+            // console.log(res2)
+            router.push('/insurance/detail')
         } catch (error) {
             console.log(error)
         }
