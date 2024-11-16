@@ -59,7 +59,7 @@ export default function SearchDialog() {
                             :
                             places?.map((item, index) => (
                                 <CommandItem className="flex justify-between" onSelect={() => {
-                                    router.push(`/insurance?origin=${location?.latitude + ',' + location?.longitude}&destination=place_id:${item.id}`)
+                                    router.push(`/insurance?origin=${location?.latitude + ',' + location?.longitude}&destination=${item.location.latitude + ',' + item.location.longitude}`)
                                 }} key={index}>
                                     <div className="max-w-[200px]">{item.displayName.text}</div>
                                     <div className="w-[80px]">{calculateDistance(

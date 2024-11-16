@@ -61,47 +61,6 @@ export default function EstData() {
                 <div>Baht: 20</div>
             </div>
         </div>
-        <Uploading />
-        <PayBtn />
-    </div>
-}
-
-function Uploading() {
-    const [stage, setStage] = useState(0)
-    useEffect(() => {
-        setTimeout(() => {
-            setStage(stage + 1)
-        }, 2000)
-    }, [stage])
-    return <div className="mt-4 space-y-4">
-        <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
-            <div className="flex items-center gap-2">
-
-                {
-                    stage < 1 ? <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
-                        <span className="text-sm text-gray-600">Uploading current location to Nillion...</span>
-                    </>
-                        :
-                        <>
-                            <CircleCheck className="text-green-600 text-xs" />
-                            <span className="text-sm text-gray-600">Uploaded current location location</span>
-                        </>
-                }
-            </div>
-            <div className="flex items-center gap-2">
-                {
-                    stage < 2 ? <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
-                        <span className="text-sm text-gray-600 transition-opacity delay-2000 duration-500">Uploading destination location...</span>
-                    </>
-                        :
-                        <>
-                            <CircleCheck className="text-green-600 text-xs" />
-                            <span className="text-sm text-gray-600">Uploaded destination location</span>
-                        </>
-                }
-            </div>
-        </div>
+        <PayBtn durationInTraffic={durationInTraffic} />
     </div>
 }

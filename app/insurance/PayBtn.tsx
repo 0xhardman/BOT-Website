@@ -6,12 +6,29 @@ import { bot, usdc } from "@/abi";
 import { sdk } from "@/lib/bitkubchain-sdk";
 import { buffer } from "stream/consumers";
 import { randomBytes } from "crypto";
+import { useEffect, useState } from "react";
+import { CircleCheck } from "lucide-react";
 
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK?.startsWith('BKC') ? 'BKC' : 'NORMAL'
 
-export default function PayBtn() {
+export default function PayBtn({ durationInTraffic }: { durationInTraffic: number }) {
     const router = useRouter();
+    const [stage, setStage] = useState(-1)
+
+    const searchParams = useSearchParams();
+    const destination = searchParams?.get('destination') ?? '';
     const { writeContractAsync } = useWriteContract()
+    useEffect(() => {
+        if (stage == -1) {
+            return
+        }
+        if (stage > 2) {
+            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}`)
+        }
+        setTimeout(() => {
+            setStage(stage + 1)
+        }, 2000)
+    }, [stage])
     const handlePay = NETWORK == "NORMAL" ? async () => {
         try {
             await writeContractAsync({
@@ -19,8 +36,7 @@ export default function PayBtn() {
                 functionName: "transfer",
                 args: ['0xCC968F87F7b7Cd5e3493cF87A7A6D2CaCC4E3d50', parseUnits("20", 6)]
             })
-            router.push('/insurance/detail')
-
+            setStage(0)
         } catch (error) {
             console.log(error)
         }
@@ -38,10 +54,49 @@ export default function PayBtn() {
             //     "0xYourBitkubNextAddress" // bitkubNext_: 需要替换为实际的BitKubNext地址
             // ])
             // console.log(res2)
-            router.push('/insurance/detail')
+            // router.push('/insurance/detail')
+            setStage(0)
         } catch (error) {
             console.log(error)
         }
     }
-    return <Button className="w-full mt-8" onClick={handlePay}> Pay</Button>
+    return <>
+        {stage < 0 ? <Button className="w-full mt-8" onClick={handlePay}> Pay</Button> :
+            <Uploading stage={stage} />}
+    </>
+}
+
+function Uploading({ stage }: { stage: number }) {
+
+    return <div className="mt-4 space-y-4">
+        <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
+            <div className="flex items-center gap-2">
+
+                {
+                    stage < 1 ? <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+                        <span className="text-sm text-gray-600">Uploading current location to Nillion...</span>
+                    </>
+                        :
+                        <>
+                            <CircleCheck className="text-green-600 text-xs" />
+                            <span className="text-sm text-gray-600">Uploaded current location to Nillion</span>
+                        </>
+                }
+            </div>
+            <div className="flex items-center gap-2">
+                {
+                    stage < 2 ? <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+                        <span className="text-sm text-gray-600 transition-opacity delay-2000 duration-500">Uploading destination location to Nillion...</span>
+                    </>
+                        :
+                        <>
+                            <CircleCheck className="text-green-600 text-xs" />
+                            <span className="text-sm text-gray-600">Uploaded destination location to Nillion</span>
+                        </>
+                }
+            </div>
+        </div>
+    </div>
 }
