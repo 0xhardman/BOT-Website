@@ -22,7 +22,16 @@ export async function GET(request: Request) {
             }
         });
 
-        return NextResponse.json(response.data);
+        const element = response.data.rows[0].elements[0];
+        const tripInfo = {
+            distance: element.distance.value,
+            duration: element.duration.value,
+            durationInTraffic: element.duration_in_traffic.value,
+            origin: response.data.origin_addresses[0],
+            destination: response.data.destination_addresses[0]
+        };
+        console.log(tripInfo)
+        return NextResponse.json(tripInfo);
     } catch (error) {
         return NextResponse.json(
             { error: 'Failed to fetch taxi time' },

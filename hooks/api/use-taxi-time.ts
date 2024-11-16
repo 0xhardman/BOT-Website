@@ -1,70 +1,37 @@
-import axios from 'axios';
-import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 
 interface TaxiTimeParams {
-    origin: string
+    origin: string;
     destination: string;
 }
 
-const DISTANCE_MATRIX_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json';
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string;
+interface TaxiTimeResponse {
+    distance: number;
+    duration: number;
+    durationInTraffic: number;
+    origin: string;
+    destination: string;
+}
 
-const taxiTimeFetcher = async (params: TaxiTimeParams) => {
-    const { origin, destination } = params;
+const fetcher = async (url: string) => {
+    const response = await fetch(url);
 
-    try {
-        const response = await axios.get('/api/time', {
-            params: {
-                origin,
-                destination
-            }
-        });
-
-        const data = response.data;
-        if (data.status !== 'OK') {
-            throw new Error(data.error_message || 'Failed to get taxi time');
-        }
-
-        const element = data.rows[0].elements[0];
-        return {
-            duration: element.duration.text,
-            durationInTraffic: element.duration_in_traffic?.text || element.duration.text
-        };
-    } catch (error) {
+    if (!response.ok) {
         throw new Error('Failed to fetch taxi time');
     }
+    const data = await response.json() as TaxiTimeResponse;
+
+    return data;
 };
 
 export function useTaxiTime(params: TaxiTimeParams) {
-    const [data, setData] = useState<{ duration: string; durationInTraffic: string } | null>(null);
-    const [error, setError] = useState<Error | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!params.origin || !params.destination) {
-                return;
-            }
-
-            setIsLoading(true);
-            setError(null);
-
-            try {
-                const result = await taxiTimeFetcher(params);
-                setData(result);
-            } catch (err) {
-                setError(err instanceof Error ? err : new Error('Unknown error'));
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [params.origin, params.destination]);
+    const { data, error, isLoading } = useSWR(
+        params.origin && params.destination ? `/api/time?origin=${params.origin}&destination=${params.destination}` : null,
+        fetcher
+    );
 
     return {
-        duration: data?.duration,
-        durationInTraffic: data?.durationInTraffic,
+        data: data as TaxiTimeResponse,
         error,
         isLoading,
     };
