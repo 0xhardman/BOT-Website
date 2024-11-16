@@ -65,7 +65,7 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
                 }
             })()
         if (stage >= 2) {
-            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}&startTime=${new Date().getTime()}`)
+            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}`)
         }
     }, [stage])
     const handlePay = NETWORK == "NORMAL" ? async () => {
@@ -106,7 +106,6 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
                 // "0xYourBitkubNextAddress" // bitkubNext_:
             ])
             console.log("res2", res2)
-            router.push('/insurance/detail')
         } catch (error) {
             console.log(error)
         } finally {
