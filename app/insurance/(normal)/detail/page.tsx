@@ -77,9 +77,7 @@ function GenerateProof({ onSuccess }: { onSuccess: () => void }) {
                 email,
                 emlFile
             })
-
         }
-
     }
     return <Dialog>
         <DialogTrigger asChild>

@@ -13,7 +13,6 @@ export default function EstData() {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const searchParams = useSearchParams();
-    // http://localhost:3000/insurance?originLongitude=100.5583005&originLatitude=13.7247806&placeId=ChIJ3UPIL_6e4jARVH4S0xM70xw
     const origin = searchParams?.get('origin') ?? '';
     const destination = searchParams?.get('destination') ?? '';
     const { data, isLoading, error } = useTaxiTime({

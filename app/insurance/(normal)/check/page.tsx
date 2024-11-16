@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { useTaxiTime } from "@/hooks/api/use-taxi-time";
 import { useCurrentLocation } from "@/hooks/use-current-location";
+import { useStoreSecret } from "@/hooks/useNillionApi";
 import { calculateDistance } from "@/lib/utils";
 import { CircleCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,6 +29,7 @@ function Distance() {
     const destLatitude = parseFloat(destinationArray[0]);
     const destLongitude = parseFloat(destinationArray[1]);
     const [stage, setStage] = useState(-1)
+    const { trigger: triggerUpload, isMutating: isUploading } = useStoreSecret()
 
     const distance = calculateDistance(
         location?.latitude as number,
@@ -40,18 +42,36 @@ function Distance() {
         if (stage == -1) {
             return
         }
-        if (stage > 2) {
+        if (stage == 0)
+            (async () => {
+                try {
+                    await triggerUpload({
+                        secretName: 'currentLongitude',
+                        secretValue: location?.longitude ? location.longitude * 10000000 : 0,
+                    })
+                    await triggerUpload({
+                        secretName: 'currentLatitude',
+                        secretValue: location?.latitude ? location.latitude * 10000000 : 0,
+                    })
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setStage(stage + 1)
+                }
+
+            })()
+        if (stage == 1) {
+            setTimeout(() => {
+                setStage(stage + 1)
+            }, 2000)
+        }
+        if (stage >= 2) {
             router.push(`/insurance/detail?isOnTime=${endTime > new Date().getTime()}`)
         }
-        setTimeout(() => {
-            setStage(stage + 1)
-        }, 2000)
     }, [stage])
     const handleCheck = async () => {
         try {
-            // 获取当前位置
-            // router.push(`/insurance/detail?isOnTime=${endTime > new Date().getTime()}`)
-            setStage(1)
+            setStage(0)
         } catch (error) {
             console.error("Error getting location:", error);
         }
@@ -96,7 +116,6 @@ function Uploading({ stage }: { stage: number }) {
     return <div className="mt-4 space-y-4">
         <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
             <div className="flex items-center gap-2">
-
                 {
                     stage < 1 ? <>
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
@@ -108,19 +127,18 @@ function Uploading({ stage }: { stage: number }) {
                             <span className="text-sm text-gray-600">Uploaded current location to Nillion</span>
                         </>
                 }
-            </div>
-            <div className="flex items-center gap-2">
                 {
                     stage < 2 ? <>
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
-                        <span className="text-sm text-gray-600 transition-opacity delay-2000 duration-500">Uploading destination location to Nillion...</span>
+                        <span className="text-sm text-gray-600">Checking Distance in Nillion...</span>
                     </>
                         :
                         <>
                             <CircleCheck className="text-green-600 text-xs" />
-                            <span className="text-sm text-gray-600">Uploaded destination location to Nillion</span>
+                            <span className="text-sm text-gray-600">Checking Distance in Nillion</span>
                         </>
                 }
+
             </div>
         </div>
     </div>
