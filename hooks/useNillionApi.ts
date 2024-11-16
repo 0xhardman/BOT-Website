@@ -1,4 +1,5 @@
 import useSWR, { mutate } from 'swr'
+import useSWRMutation from 'swr/mutation'
 
 const APP_ID = process.env.NEXT_PUBLIC_NILLION_APP_ID
 const USER_SEED = process.env.NEXT_PUBLIC_NILLION_USER_SEED
@@ -17,28 +18,31 @@ export function useNillionUserId() {
 }
 
 export function useStoreSecret() {
-    const storeSecret = async (secretValue: number | string, secretName: string) => {
-        const response = await fetch(`${API_BASE}/api/apps/${APP_ID}/secrets`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                secret: {
-                    nillion_seed: USER_SEED,
-                    secret_value: secretValue,
-                    secret_name: secretName,
-                },
-                permissions: {
-                    retrieve: [],
-                    update: [],
-                    delete: [],
-                    compute: {},
-                },
-            }),
-        })
-        return response.json()
-    }
+    return useSWRMutation(
+        'store-secret',
+        async (_, { arg: { secretValue, secretName } }: { arg: { secretValue: number | string, secretName: string } }) => {
+            const response = await fetch(`${API_BASE}/api/apps/${APP_ID}/secrets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    secret: {
+                        nillion_seed: USER_SEED,
+                        secret_value: secretValue,
+                        secret_name: secretName,
+                    },
+                    permissions: {
+                        retrieve: [],
+                        update: [],
+                        delete: [],
+                        compute: {},
+                    },
+                }),
+            })
+            return response.json()
+        }
+    )
 
-    return { storeSecret }
+    // return { storeSecret }
 }
 
 

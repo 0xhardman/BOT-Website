@@ -8,26 +8,65 @@ import { buffer } from "stream/consumers";
 import { randomBytes } from "crypto";
 import { useEffect, useState } from "react";
 import { CircleCheck } from "lucide-react";
+import { useRegisterEmail } from "@/hooks/api/useRegisterEmail";
+import { useStoreSecret } from "@/hooks/useNillionApi";
 
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK?.startsWith('BKC') ? 'BKC' : 'NORMAL'
 
 export default function PayBtn({ durationInTraffic }: { durationInTraffic: number }) {
     const router = useRouter();
-    const [stage, setStage] = useState(-1)
-
     const searchParams = useSearchParams();
+    const origin = searchParams?.get('origin') ?? '';
     const destination = searchParams?.get('destination') ?? '';
+    const [stage, setStage] = useState(-1)
+    const { trigger: triggerUpload, isMutating: isUploading } = useStoreSecret()
+
     const { writeContractAsync } = useWriteContract()
     useEffect(() => {
         if (stage == -1) {
             return
         }
-        if (stage > 2) {
-            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}`)
+        if (stage == 0)
+            (async () => {
+                try {
+                    const destArr = destination.split(',')
+                    console.log(Number(destArr[0]) * 10000000)
+                    await triggerUpload({
+                        secretName: 'destLongitude',
+                        secretValue: Number(destArr[0]) * 10000000,
+                    })
+                    await triggerUpload({
+                        secretName: 'destLatitude',
+                        secretValue: Number(destArr[1]) * 10000000,
+                    })
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setStage(stage + 1)
+                }
+
+            })()
+        if (stage == 1)
+            (async () => {
+                try {
+                    const originArr = origin.split(',')
+                    await triggerUpload({
+                        secretName: 'originLongitude',
+                        secretValue: Number(originArr[0]) * 10000000,
+                    })
+                    await triggerUpload({
+                        secretName: 'originLatitude',
+                        secretValue: Number(originArr[1]) * 10000000,
+                    })
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setStage(stage + 1)
+                }
+            })()
+        if (stage >= 2) {
+            router.push(`/insurance/check?destination=${destination}&endTime=${new Date(new Date().getTime() + durationInTraffic * 1100).getTime()}&startTime=${new Date().getTime()}`)
         }
-        setTimeout(() => {
-            setStage(stage + 1)
-        }, 2000)
     }, [stage])
     const handlePay = NETWORK == "NORMAL" ? async () => {
         try {
@@ -59,7 +98,7 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
             // }
 
             const res2 = await sdk.sendCustomTx(
-              bot.address, "startTrip(string _tripId, uint256 _startTime, uint256 _value, address bitkubNext_)", [
+                bot.address, "startTrip(string _tripId, uint256 _startTime, uint256 _value, address bitkubNext_)", [
                 randomBytes(32).toString('hex'), // _tripId:
                 Math.floor(Date.now() / 1000).toString(), // _startTime:
                 parseUnits("5", 6).toString(), // _value: 5 USDC
@@ -68,9 +107,10 @@ export default function PayBtn({ durationInTraffic }: { durationInTraffic: numbe
             ])
             console.log("res2", res2)
             router.push('/insurance/detail')
-            setStage(0)
         } catch (error) {
             console.log(error)
+        } finally {
+            setStage(0)
         }
     }
     return <>

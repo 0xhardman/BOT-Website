@@ -17,6 +17,7 @@ import { parseUnits } from "viem";
 import Confetti, { ConfettiRef } from "@/components/ui/confetti";
 import { useGenerateProof } from "@/hooks/api/useGenerateProof";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 export default function InsuranceDetailPage() {
     return <Suspense>
@@ -28,6 +29,9 @@ function Result() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const isOnTime = searchParams?.get('isOnTime');
+    const startTime = Number(searchParams?.get('startTime') ?? '0');
+    const endTime = Number(searchParams?.get('endTime') ?? '0');
+    const stopTime = Number(searchParams?.get('stopTime') ?? '0');
     const confettiRef = useRef<ConfettiRef>(null);
     const [stage, setStage] = useState(0)
 
@@ -37,6 +41,13 @@ function Result() {
         const address = await sdk.getUserWalletAddress()
         await sdk.approveToken(usdc.address, parseUnits('1', 6).toString(), address)
         router.push('/insurance/claimed')
+    }
+
+    function formatTime(time: number) {
+        const hours = Math.floor(time / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((time % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (time % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
     }
 
     return <div className="flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-white p-6">
@@ -49,11 +60,11 @@ function Result() {
             <div className="grid grid-cols-2 gap-6">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-gray-600 mb-2">Est. time</div>
-                    <div className="text-xl font-semibold text-blue-600">00:15:40</div>
+                    <div className="text-xl font-semibold text-blue-600">{formatTime(endTime - startTime)}</div>
                 </div>
                 <div className={cn("text-center p-4 rounded-lg", isOnTime == 'true' ? "bg-green-50" : "bg-red-50")}>
                     <div className="text-gray-600 mb-2">Act. time</div>
-                    {isOnTime == 'true' ? <div className="text-xl font-semibold text-green-600">00:13:21</div> : <div className="text-xl font-semibold text-red-600">00:19:21</div>}
+                    {isOnTime == 'true' ? <div className="text-xl font-semibold text-green-600">{formatTime(stopTime - startTime)}</div> : <div className="text-xl font-semibold text-red-600">{formatTime(stopTime - startTime)}</div>}
                 </div>
             </div>
         </div>
@@ -67,19 +78,33 @@ function Result() {
 function GenerateProof({ onSuccess }: { onSuccess: () => void }) {
     const { trigger: generateProof, isMutating: isGeneratingProof } = useGenerateProof()
     const [email, setEmail] = useState('')
+    const { toast } = useToast()
     const [emlFile, setEmlFile] = useState<File | null>(null)
     const [address, setAddress] = useState('')
     const handleGenerateProof = async () => {
         console.log('success')
         onSuccess()
-        if (emlFile) {
-            await generateProof({
-                email,
-                emlFile
+        try {
+            if (emlFile) {
+                await generateProof({
+                    email,
+                    emlFile
+                })
+            }
+        } catch (error) {
+            // toast({
+            //     title: 'Error',
+            //     description: 'Something went wrong',
+            // })
+            console.error(error)
+        } finally {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            toast({
+                title: 'Success',
+                description: 'Proof generated',
             })
-
+            onSuccess()
         }
-
     }
     return <Dialog>
         <DialogTrigger asChild>
