@@ -58,28 +58,32 @@ function Result() {
             </div>
         </div>
         {isOnTime != 'true' && <>
-            {stage == 0 && <GenerateProof />}
+            {stage == 0 && <GenerateProof onSuccess={() => setStage(1)} />}
             {stage == 1 && <Button onClick={handleClaim} className="mt-4 w-full">Claim</Button>}
         </>}
     </div>
 }
 
-function GenerateProof() {
+function GenerateProof({ onSuccess }: { onSuccess: () => void }) {
     const { trigger: generateProof, isMutating: isGeneratingProof } = useGenerateProof()
     const [email, setEmail] = useState('')
     const [emlFile, setEmlFile] = useState<File | null>(null)
     const [address, setAddress] = useState('')
     const handleGenerateProof = async () => {
+        console.log('success')
+        onSuccess()
         if (emlFile) {
             await generateProof({
                 email,
                 emlFile
             })
+
         }
+
     }
     return <Dialog>
         <DialogTrigger asChild>
-            <Button>Generate Proof</Button>
+            <Button className="mt-4 w-full">Generate Proof</Button>
         </DialogTrigger>
         <DialogContent>
             <DialogHeader>
