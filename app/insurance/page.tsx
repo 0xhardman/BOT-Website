@@ -7,11 +7,11 @@ export default function InsurancePage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     // http://localhost:3000/insurance?originLongitude=100.5583005&originLatitude=13.7247806&placeId=ChIJ3UPIL_6e4jARVH4S0xM70xw
-    const origin = searchParams.get('origin')
-    const destination = searchParams.get('destination')
+    const origin = searchParams?.get('origin') ?? '';
+    const destination = searchParams?.get('destination') ?? '';
     const { data, isLoading, error } = useTaxiTime({
-        origin: `${origin}`,
-        destination: `${destination}`
+        origin: origin,
+        destination: destination
     })
     console.log({ data, isLoading, error })
     if (isLoading) return <div>Loading...</div>
