@@ -18,7 +18,7 @@ export default function Home() {
             />
             <WordRotate
               className="text-3xl -mt-2 font-bold text-center text-black dark:text-white"
-              words={["ISS", "DFSD", "AAA"]}
+              words={["FYI Center", "UOB Live", "QSICC"]}
             />
             <SearchDialog />
 
